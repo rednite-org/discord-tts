@@ -1,6 +1,6 @@
 import { TextToSpeech, VoiceType } from "./TextToSpeech";
 import { Client, SlashCommandBuilder, Collection, VoiceBasedChannel } from 'discord.js'
-import { joinVoiceChannel, entersState, VoiceConnectionStatus, createAudioPlayer,createAudioResource, StreamType, NoSubscriberBehavior } from '@discordjs/voice'
+import { joinVoiceChannel, entersState, VoiceConnectionStatus, createAudioPlayer, createAudioResource, StreamType, NoSubscriberBehavior } from '@discordjs/voice'
 import { Readable } from 'stream';
 
 
@@ -42,42 +42,34 @@ export class Discord {
 
 
         client.on('messageCreate', async message => {
-            if (message.content.trim() === '!play') {
-                const member = message.member
+            if (message.content.trim().length === 0) return
 
-                if (!member) return
+            const member = message.member
 
-                if (!member.voice.channel) {
-                    await message.reply('Вы должны находиться в голосовом чате!')
-                    return
-                }
+            if (!member) return
 
-                const channel = member.voice.channel
+            const speechless = member.roles.cache.find(x => x.name.toLowerCase().includes("немые"))
 
-                try {
-                    const connection = await this.connectToChannel(channel)
-                    connection.subscribe(player)
+            if (!speechless) return
 
-                    await message.reply('я подключился')
-                } catch (err) {
-                    console.error(err)
-                }
+            const channel = member.voice.channel
 
-            }
+            if (!channel) return
 
-            if (message.content.trim().startsWith('скажи ')) {
-                const text = message.content.trim().split('скажи ')[1]
-                await message.reply(`говорю ${text}`)
+            try {
+                const connection = await this.connectToChannel(channel)
+                connection.subscribe(player)
 
-                const speech = await this.textToSpeech.synthesizeSpeech(VoiceType.Jane, text)
+        
+                const speech = await this.textToSpeech.synthesizeSpeech(VoiceType.Zahar, message.content)
                 const stream = Readable.from(speech);
 
                 await player.play(createAudioResource(stream, {
                     inputType: StreamType.OggOpus,
                 }))
+            } catch (err) {
+                console.error(err)
             }
-
-
         })
 
 
