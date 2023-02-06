@@ -1,4 +1,5 @@
 node_modules/
+dist/
 
 authorized_key.json
 iam_token.json
