@@ -7,7 +7,7 @@ export enum VoiceType {
     Ermil = "ermil",
     Jane = "jane",
     Madirus = "madirus",
-    Omazh = "Omazh",
+    Omazh = "omazh",
     Zahar = "Zahar"
 }
 
