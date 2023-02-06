@@ -3,6 +3,7 @@ import jose from 'node-jose'
 import axios from 'axios'
 import { TextToSpeech, VoiceType } from './TextToSpeech'
 import config from './config'
+import { Discord } from './Discord'
 
 
 async function fetchJWT() {
@@ -50,12 +51,11 @@ async function loadToken(): Promise<{ iamToken: string, expiresAt: string }> {
 
 async function main() {
     const token = await loadToken()
-
     const textToSpeech = new TextToSpeech(config.folderId, token.iamToken)
 
-    const speech = await textToSpeech.synthesizeSpeech(VoiceType.Alena, "Я Аленочка, привет")
+    const discord = new Discord(textToSpeech)
 
-    await fs.writeFile('speech.ogg', speech)
+    await discord.init(config.discordToken)
 
 }
 
