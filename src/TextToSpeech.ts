@@ -8,7 +8,7 @@ export enum VoiceType {
     Jane = "jane",
     Madirus = "madirus",
     Omazh = "omazh",
-    Zahar = "Zahar"
+    Zahar = "zahar"
 }
 
 export class TextToSpeech {
