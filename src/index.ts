@@ -1,6 +1,9 @@
 import fs, { copySync } from 'fs-extra'
 import jose from 'node-jose'
 import axios from 'axios'
+import qs from 'qs'
+
+const folderId = 'b1ggv94mt5nrd3bftldp'
 
 async function fetchJWT() {
     const authorizedKey = fs.readJsonSync('authorized_key.json')
@@ -45,8 +48,31 @@ async function loadToken(): Promise<{ iamToken: string, expiresAt: string }> {
 
 }
 
+
+async function textToSpeech(iamToken: string, text: string) {
+
+    const response = await axios.post('https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize', qs.stringify({
+        lang: 'ru-RU',
+        voice: 'filipp',
+        folderId,
+        text,
+    }), {
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${iamToken}`
+        },
+        responseType: 'arraybuffer'
+    })
+
+    return response.data
+}
+
 async function main() {
     const token = await loadToken()
+
+    const speech = await textToSpeech(token.iamToken, 'Привет мир!')
+
+    await fs.writeFile('speech.ogg', speech)
 
 }
 
