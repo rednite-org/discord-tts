@@ -38,6 +38,17 @@
   resolved "https://registry.yarnpkg.com/@discordjs/util/-/util-0.1.0.tgz#e42ca1bf407bc6d9adf252877d1b206e32ba369a"
   integrity sha512-e7d+PaTLVQav6rOc2tojh2y6FE8S7REkqLldq1XF4soCx74XB/DIjbVbVLtBemf0nLW77ntz0v+o5DytKwFNLQ==
 
+"@discordjs/voice@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/@discordjs/voice/-/voice-0.14.0.tgz#8e5be1a76bb6c1e6e75236237f00241c763b2833"
+  integrity sha512-/LV8LSFuJ1c4OEW1ubPg3al2QNpUpwX8ZL+KL+LORmnUFVCtehSaEh+38uDfWg1O/TgiGI5vOLj4ZKql43drcw==
+  dependencies:
+    "@types/ws" "^8.5.3"
+    discord-api-types "^0.37.20"
+    prism-media "^1.3.4"
+    tslib "^2.4.1"
+    ws "^8.11.0"
+
 "@esbuild-kit/cjs-loader@^2.4.1":
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/@esbuild-kit/cjs-loader/-/cjs-loader-2.4.1.tgz#5c1183ac3906223f0da3bb4ff5b74d0f0b13c326"
@@ -522,6 +533,11 @@ peek-readable@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/peek-readable/-/peek-readable-5.0.0.tgz#7ead2aff25dc40458c60347ea76cfdfd63efdfec"
   integrity sha512-YtCKvLUOvwtMGmrniQPdO7MwPjgkFBtFIrmfSbYmYuq3tKDV/mcfAhBth1+C3ru7uXIZasc/pHnb+YDYNkkj4A==
+
+prism-media@^1.3.4:
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/prism-media/-/prism-media-1.3.4.tgz#7951f26a9186b791dc8c820ff07310ec46a8a5f1"
+  integrity sha512-eW7LXORkTCQznZs+eqe9VjGOrLBxcBPXgNyHXMTSRVhphvd/RrxgIR7WaWt4fkLuhshcdT5KHL88LAfcvS3f5g==
 
 process@^0.11.10:
   version "0.11.10"
