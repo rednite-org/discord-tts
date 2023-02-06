@@ -87,13 +87,13 @@ export class Discord {
                     new SlashCommandBuilder()
                         .setName('voice')
                         .setDescription('Выбрать голос')
-                        .addStringOption(option => 
+                        .addStringOption(option =>
                             option.setName('голос')
-                            .setDescription('Название голоса')
-                            .setRequired(true)
-                            .addChoices(
-                                ...commands
-                            ))
+                                .setDescription('Название голоса')
+                                .setRequired(true)
+                                .addChoices(
+                                    ...commands
+                                ))
                 ]
             }
         )
