@@ -27,12 +27,12 @@ async function fetchIAM(jwt: string) {
 async function main() {
     let tokenFile = null
     try {
-        tokenFile = JSON.parse(fs.readJsonSync('iam_token.json'))
-    } catch (err ) {}
+        tokenFile = fs.readJsonSync('iam_token.json')
+    } catch (err) {}
     if (tokenFile == null || Date.parse(tokenFile.expiresAt) < Date.now()) {
         const jwt = await fetchJWT()
         tokenFile = await fetchIAM(jwt.toString())
-        fs.writeFileSync('iam_token.json', JSON.stringify(tokenFile))
+        fs.writeJsonSync('iam_token.json', tokenFile)
     }
 
     const token = tokenFile.iamToken
