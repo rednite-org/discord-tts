@@ -45,12 +45,10 @@ async function loadToken(): Promise<{ iamToken: string, expiresAt: string }> {
     await fs.writeJSON(filename, token, { spaces: 2 })
 
     return token
-
 }
 
 
 async function textToSpeech(iamToken: string, text: string) {
-
     const response = await axios.post('https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize', qs.stringify({
         lang: 'ru-RU',
         voice: 'filipp',
