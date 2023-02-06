@@ -2,8 +2,8 @@ import fs, { copySync } from 'fs-extra'
 import jose from 'node-jose'
 import axios from 'axios'
 import { TextToSpeech, VoiceType } from './TextToSpeech'
+import config from './config'
 
-const folderId = 'b1ggv94mt5nrd3bftldp'
 
 async function fetchJWT() {
     const authorizedKey = fs.readJsonSync('authorized_key.json')
@@ -51,7 +51,7 @@ async function loadToken(): Promise<{ iamToken: string, expiresAt: string }> {
 async function main() {
     const token = await loadToken()
 
-    const textToSpeech = new TextToSpeech(folderId, token.iamToken)
+    const textToSpeech = new TextToSpeech(config.folderId, token.iamToken)
 
     const speech = await textToSpeech.synthesizeSpeech(VoiceType.Alena, "Я Аленочка, привет")
 
