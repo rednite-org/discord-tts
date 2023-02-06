@@ -1,12 +1,17 @@
-import { TextToSpeech } from "./TextToSpeech";
-import { Client, SlashCommandBuilder, Collection, Events } from 'discord.js'
+import { TextToSpeech, VoiceType } from "./TextToSpeech";
+import { Client, SlashCommandBuilder, Collection, VoiceBasedChannel } from 'discord.js'
+import { joinVoiceChannel, entersState, VoiceConnectionStatus, createAudioPlayer, NoSubscriberBehavior } from '@discordjs/voice'
 
 
-const commands = new Collection()
 
-commands.set('connect', new SlashCommandBuilder()
-    .setName("connect")
-    .setDescription("Connect bot to current voice chat"))
+
+const player = createAudioPlayer({
+    behaviors: {
+        noSubscriber: NoSubscriberBehavior.Play,
+        maxMissedFrames: Math.round(5000 / 20)
+    }
+})
+
 
 
 export class Discord {
@@ -46,8 +51,26 @@ export class Discord {
                     return
                 }
 
-                // const connection = await member.voice.channel;
+                const channel = member.voice.channel
 
+                try {
+                    const connection = await this.connectToChannel(channel)
+                    connection.subscribe(player)
+
+                    await message.reply('я подключился')
+                } catch (err) {
+                    console.error(err)
+                }
+
+            }
+
+            if (message.content.trim().startsWith('скажи ')) {
+                const text = message.content.trim().split('скажи ')[1]
+                await message.reply(`говорю ${text}`)
+
+                // const speech = await this.textToSpeech.synthesizeSpeech(VoiceType.Jane, text)
+
+                // await player.play(speech)
             }
 
 
@@ -55,6 +78,23 @@ export class Discord {
 
 
         await client.login(token)
+    }
+
+
+    async connectToChannel(channel: VoiceBasedChannel) {
+        const connection = joinVoiceChannel({
+            channelId: channel.id,
+            guildId: channel.guild.id,
+            adapterCreator: channel.guild.voiceAdapterCreator
+        })
+
+        try {
+            await entersState(connection, VoiceConnectionStatus.Ready, 30_000)
+            return connection
+        } catch (err) {
+            connection.destroy()
+            throw err;
+        }
     }
 }
 
