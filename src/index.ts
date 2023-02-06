@@ -55,6 +55,7 @@ async function main() {
 
     const discord = new Discord(textToSpeech)
 
+    await discord.registerCommand(config.discordClientId, config.discordToken)
     await discord.init(config.discordToken)
 
 }

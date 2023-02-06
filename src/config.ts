@@ -4,6 +4,7 @@ config()
 
 export const folderId = getenv('FOLDER_ID')
 export const discordToken = getenv('DISCORD_TOKEN') 
+export const discordClientId = getenv('DISCORD_CLIENT_ID')
 
 
 function getenv(name: string, defaultValue?: string) {
@@ -18,5 +19,6 @@ function getenv(name: string, defaultValue?: string) {
 
 export default {
     folderId,
-    discordToken
+    discordToken,
+    discordClientId,
 }

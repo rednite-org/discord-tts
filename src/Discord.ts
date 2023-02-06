@@ -1,5 +1,5 @@
 import { TextToSpeech, VoiceType } from "./TextToSpeech";
-import { Client, VoiceBasedChannel } from 'discord.js'
+import { Client, REST, Routes, SlashCommandBuilder, VoiceBasedChannel } from 'discord.js'
 import { joinVoiceChannel, entersState, VoiceConnectionStatus, createAudioPlayer, createAudioResource, StreamType, NoSubscriberBehavior } from '@discordjs/voice'
 import { Readable } from 'stream';
 
@@ -21,6 +21,7 @@ export class Discord {
             intents: [
                 "Guilds",
                 "GuildMessages",
+                "GuildIntegrations",
                 "GuildVoiceStates",
 
                 "MessageContent",
@@ -35,7 +36,6 @@ export class Discord {
         client.once('ready', () => {
             console.log(`bot "${client.user?.username}" is ready`)
         })
-
 
         client.on('messageCreate', async message => {
             if (message.content.trim().length === 0) return
@@ -71,6 +71,33 @@ export class Discord {
         await client.login(token)
     }
 
+
+    async registerCommand(clientId: string, token: string) {
+        const rest = new REST({ version: '10' }).setToken(token)
+
+        const commands = Object.entries(VoiceType).map(voiceType => ({
+            name: voiceType[0],
+            value: voiceType[1]
+        }))
+
+        await rest.put(
+            Routes.applicationCommands(clientId),
+            {
+                body: [
+                    new SlashCommandBuilder()
+                        .setName('voice')
+                        .setDescription('Выбрать голос')
+                        .addStringOption(option => 
+                            option.setName('голос')
+                            .setDescription('Название голоса')
+                            .setRequired(true)
+                            .addChoices(
+                                ...commands
+                            ))
+                ]
+            }
+        )
+    }
 
     async connectToChannel(channel: VoiceBasedChannel) {
         const connection = joinVoiceChannel({
