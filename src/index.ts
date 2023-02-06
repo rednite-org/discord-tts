@@ -15,9 +15,7 @@ async function fetchJWT() {
     };
 
     const result = await jose.JWK.asKey(authorizedKey.private_key, 'pem', { kid: authorizedKey.id, alg: 'PS256' })
-
     const jwt = await jose.JWS.createSign({ format: 'compact'}, result).update(JSON.stringify(payload)).final()
-
     return jwt
 }
 
@@ -34,9 +32,18 @@ async function fetchIAM(jwt: string) {
 }
 
 async function main() {
-    const jwt = await fetchJWT()
-    const iam = await fetchIAM(jwt.toString())
-    console.log(iam)
+    let tokenFile = null
+    try {
+        tokenFile = JSON.parse(fs.readJsonSync('iam_token.json'))
+    } catch (err ) {}
+    if (tokenFile == null || Date.parse(tokenFile.expiresAt) < Date.now()) {
+        const jwt = await fetchJWT()
+        tokenFile = await fetchIAM(jwt.toString())
+        fs.writeFileSync('iam_token.json', JSON.stringify(tokenFile))
+    }
+
+    const token = tokenFile.iamToken
+    console.log(token)
 }
 
 main().catch(console.error)
