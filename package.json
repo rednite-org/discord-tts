@@ -1,0 +1,21 @@
+{
+  "name": "discord-tts",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsx ."
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
+    "@types/fs-extra": "^11.0.1",
+    "@types/node-jose": "^1.1.10",
+    "tsx": "^3.12.2",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "axios": "^1.3.2",
+    "fs-extra": "^11.1.0",
+    "node-jose": "^2.1.1"
+  }
+}
