@@ -1,9 +1,7 @@
 import { TextToSpeech, VoiceType } from "./TextToSpeech";
-import { Client, SlashCommandBuilder, Collection, VoiceBasedChannel } from 'discord.js'
+import { Client, VoiceBasedChannel } from 'discord.js'
 import { joinVoiceChannel, entersState, VoiceConnectionStatus, createAudioPlayer, createAudioResource, StreamType, NoSubscriberBehavior } from '@discordjs/voice'
 import { Readable } from 'stream';
-
-
 
 
 const player = createAudioPlayer({
@@ -12,8 +10,6 @@ const player = createAudioPlayer({
         maxMissedFrames: Math.round(5000 / 20)
     }
 })
-
-
 
 export class Discord {
     textToSpeech: TextToSpeech
@@ -60,7 +56,6 @@ export class Discord {
                 const connection = await this.connectToChannel(channel)
                 connection.subscribe(player)
 
-        
                 const speech = await this.textToSpeech.synthesizeSpeech(VoiceType.Zahar, message.content)
                 const stream = Readable.from(speech);
 

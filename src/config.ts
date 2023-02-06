@@ -1,6 +1,5 @@
 import { config } from 'dotenv'
 
-
 config()
 
 export const folderId = getenv('FOLDER_ID')
