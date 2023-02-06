@@ -4,6 +4,8 @@ import axios from 'axios'
 import { TextToSpeech, VoiceType } from './TextToSpeech'
 import config from './config'
 import { Discord } from './Discord'
+import { FileUserRepository, UserRepository } from './storage/repository'
+import { User } from './storage/user'
 
 
 async function fetchJWT() {
