@@ -15,28 +15,39 @@ async function fetchJWT() {
     };
 
     const key = await jose.JWK.asKey(authorizedKey.private_key, 'pem', { kid: authorizedKey.id, alg: 'PS256' })
-    const jwt = await jose.JWS.createSign({ format: 'compact'}, key).update(JSON.stringify(payload)).final()
+    const jwt = await jose.JWS.createSign({ format: 'compact' }, key).update(JSON.stringify(payload)).final()
     return jwt
 }
 
 async function fetchIAM(jwt: string) {
-    const { data: iam }= await axios.post('https://iam.api.cloud.yandex.net/iam/v1/tokens', { jwt })
+    const { data: iam } = await axios.post('https://iam.api.cloud.yandex.net/iam/v1/tokens', { jwt })
     return iam
 }
 
-async function main() {
-    let tokenFile = null
-    try {
-        tokenFile = fs.readJsonSync('iam_token.json')
-    } catch (err) {}
-    if (tokenFile == null || Date.parse(tokenFile.expiresAt) < Date.now()) {
-        const jwt = await fetchJWT()
-        tokenFile = await fetchIAM(jwt.toString())
-        fs.writeJsonSync('iam_token.json', tokenFile)
+
+async function loadToken(): Promise<{ iamToken: string, expiresAt: string }> {
+    const filename = 'iam_token.json'
+
+    if ((await fs.exists(filename))) {
+        const data = await fs.readJson(filename)
+
+        if (Date.parse(data.expiresAt) > Date.now()) {
+            // TODO: Do refresh 
+            return data
+        }
     }
 
-    const token = tokenFile.iamToken
-    console.log(token)
+    const jwt = await fetchJWT()
+    const token = await fetchIAM(jwt.toString())
+    await fs.writeJSON(filename, token, { spaces: 2 })
+
+    return token
+
+}
+
+async function main() {
+    const token = await loadToken()
+
 }
 
 main().catch(console.error)
