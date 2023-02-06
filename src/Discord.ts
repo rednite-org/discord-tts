@@ -1,6 +1,7 @@
 import { TextToSpeech, VoiceType } from "./TextToSpeech";
 import { Client, SlashCommandBuilder, Collection, VoiceBasedChannel } from 'discord.js'
-import { joinVoiceChannel, entersState, VoiceConnectionStatus, createAudioPlayer, NoSubscriberBehavior } from '@discordjs/voice'
+import { joinVoiceChannel, entersState, VoiceConnectionStatus, createAudioPlayer,createAudioResource, StreamType, NoSubscriberBehavior } from '@discordjs/voice'
+import { Readable } from 'stream';
 
 
 
@@ -68,9 +69,12 @@ export class Discord {
                 const text = message.content.trim().split('скажи ')[1]
                 await message.reply(`говорю ${text}`)
 
-                // const speech = await this.textToSpeech.synthesizeSpeech(VoiceType.Jane, text)
+                const speech = await this.textToSpeech.synthesizeSpeech(VoiceType.Jane, text)
+                const stream = Readable.from(speech);
 
-                // await player.play(speech)
+                await player.play(createAudioResource(stream, {
+                    inputType: StreamType.OggOpus,
+                }))
             }
 
 
