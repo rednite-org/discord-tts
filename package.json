@@ -4,15 +4,9 @@
   "main": "src/index.ts",
   "license": "MIT",
   "scripts": {
-    "start": "tsx ."
-  },
-  "devDependencies": {
-    "@tsconfig/node16": "^1.0.3",
-    "@types/fs-extra": "^11.0.1",
-    "@types/node-jose": "^1.1.10",
-    "@types/qs": "^6.9.7",
-    "tsx": "^3.12.2",
-    "typescript": "^4.9.5"
+    "start": "tsx .",
+    "build": "tsc",
+    "docker": "node dist/index.js"
   },
   "dependencies": {
     "@discordjs/voice": "^0.14.0",
@@ -24,5 +18,13 @@
     "libsodium-wrappers": "^0.7.10",
     "node-jose": "^2.1.1",
     "qs": "^6.11.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
+    "@types/fs-extra": "^11.0.1",
+    "@types/node-jose": "^1.1.10",
+    "@types/qs": "^6.9.7",
+    "tsx": "^3.12.2",
+    "typescript": "^4.9.5"
   }
 }
