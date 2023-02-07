@@ -1,5 +1,5 @@
 import { Client, Events, VoiceBasedChannel } from 'discord.js'
-import { joinVoiceChannel, entersState, VoiceConnectionStatus, createAudioPlayer, createAudioResource, StreamType, NoSubscriberBehavior } from '@discordjs/voice'
+import { joinVoiceChannel, entersState, VoiceConnectionStatus, createAudioPlayer, createAudioResource, StreamType, NoSubscriberBehavior, AudioPlayerStatus } from '@discordjs/voice'
 import { Readable } from 'stream';
 import { FileUserRepository, UserRepository } from "./storage/repository";
 import config from './config'
@@ -8,13 +8,14 @@ import { CommandRepository } from "./command/command";
 import { VoiceCommand } from "./command/voice";
 import fs from 'fs-extra';
 import { TtsEngine } from "./tts/tts";
+import { Mutex } from 'async-mutex';
 
 const userRepository: UserRepository = new FileUserRepository('users');
 const commandRepository: CommandRepository = new CommandRepository();
 
 const player = createAudioPlayer({
     behaviors: {
-        noSubscriber: NoSubscriberBehavior.Play,
+        noSubscriber: NoSubscriberBehavior.Pause,
         maxMissedFrames: Math.round(5000 / 20)
     }
 })
@@ -39,6 +40,7 @@ async function deployCommands(clientId: string, token: string) {
 export class Discord {
     ttsEngine: TtsEngine
     client: Client
+    mutex: Mutex = new Mutex()
 
     constructor(ttsEngine: TtsEngine) {
         this.ttsEngine = ttsEngine
@@ -92,17 +94,24 @@ export class Discord {
 
                 const user = userRepository.get(member.id)
                 console.log(`${member.user.username} chatted: ${message.cleanContent}`)
-                const speech = await this.ttsEngine.synthesizeSpeech(user === null 
-                    ? this.ttsEngine.getDefaultVoiceType() 
+                const speech = await this.ttsEngine.synthesizeSpeech(user === null
+                    ? this.ttsEngine.getDefaultVoiceType()
                     : user.voiceType!, message.cleanContent)
                 const stream = Readable.from(speech);
 
-                player.play(createAudioResource(stream, { inputType: StreamType.OggOpus }))
+                await this.mutex.acquire();
+                console.log(`Playing: ${message.cleanContent}`)
+                await player.play(createAudioResource(stream, { inputType: StreamType.OggOpus }))
             } catch (err) {
                 console.error(err)
             }
         })
 
+        player.on('stateChange', (_oldState, newState) => {
+            if (newState.status === AudioPlayerStatus.Idle) {
+                this.mutex.release();
+            }
+        });
 
         await client.login(token)
     }

@@ -6,7 +6,6 @@ import { Discord } from './discord'
 import { YandexTtsEngine } from './tts/yandex'
 import { TtsEngine } from './tts/tts'
 
-
 async function fetchJWT() {
     const authorizedKey = fs.readJsonSync('authorized_key.json')
 
@@ -28,7 +27,6 @@ async function fetchIAM(jwt: string) {
     const { data: iam } = await axios.post('https://iam.api.cloud.yandex.net/iam/v1/tokens', { jwt })
     return iam
 }
-
 
 async function loadToken(): Promise<{ iamToken: string, expiresAt: string }> {
     const filename = 'iam_token.json'
