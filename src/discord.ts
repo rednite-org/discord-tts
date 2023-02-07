@@ -1,4 +1,3 @@
-import { TextToSpeech, VoiceType } from "./TextToSpeech";
 import { Client, Events, VoiceBasedChannel } from 'discord.js'
 import { joinVoiceChannel, entersState, VoiceConnectionStatus, createAudioPlayer, createAudioResource, StreamType, NoSubscriberBehavior } from '@discordjs/voice'
 import { Readable } from 'stream';
@@ -6,7 +5,9 @@ import { FileUserRepository, UserRepository } from "./storage/repository";
 import config from './config'
 import { REST, Routes } from 'discord.js';
 import { CommandRepository } from "./command/command";
-import { VoiceTypeCommand } from "./command/voiceTypeCommand";
+import { VoiceCommand } from "./command/voice";
+import fs from 'fs-extra';
+import { TtsEngine } from "./tts/tts";
 
 const userRepository: UserRepository = new FileUserRepository('users');
 const commandRepository: CommandRepository = new CommandRepository();
@@ -19,28 +20,33 @@ const player = createAudioPlayer({
 })
 
 async function deployCommands(clientId: string, token: string) {
-    const rest = new REST({ version: '10' }).setToken(token)
+    const body = commandRepository.all().map(command => command.toJSON());
 
-    await rest.put(
-        Routes.applicationCommands(clientId),
-        {
-            body: commandRepository.all().map(command => command.toJSON())
+    if (fs.existsSync('commands.json')) {
+        if (JSON.stringify(body) === JSON.stringify(fs.readJsonSync('commands.json'))) {
+            return;
         }
-    )
+    }
+
+    fs.writeJsonSync('commands.json', body);
+
+    console.log('Deploying new commands...')
+
+    const rest = new REST({ version: '10' }).setToken(token)
+    return rest.put(Routes.applicationCommands(clientId), { body })
 }
 
 export class Discord {
-    textToSpeech: TextToSpeech
+    ttsEngine: TtsEngine
     client: Client
 
-    constructor(textToSpeech: TextToSpeech) {
-        this.textToSpeech = textToSpeech
+    constructor(ttsEngine: TtsEngine) {
+        this.ttsEngine = ttsEngine
         const client = new Client({
             intents: [
                 "Guilds",
                 "GuildMessages",
                 "GuildVoiceStates",
-
                 "MessageContent",
             ]
         })
@@ -50,7 +56,7 @@ export class Discord {
     async init(token: string) {
         const client = this.client
 
-        commandRepository.registerCommand(new VoiceTypeCommand(userRepository))
+        commandRepository.registerCommand(new VoiceCommand(userRepository, this.ttsEngine))
         await deployCommands(config.discordClientId, config.discordToken)
 
         client.once('ready', () => {
@@ -69,18 +75,15 @@ export class Discord {
         });
 
         client.on('messageCreate', async message => {
-            if (message.content.trim().length === 0) return
+            if (message.cleanContent.trim().length === 0) return
 
             const member = message.member
-
             if (!member) return
 
             const speechless = member.roles.cache.find(x => x.name.toLowerCase().includes("немые"))
-
             if (!speechless) return
 
             const channel = member.voice.channel
-
             if (!channel) return
 
             try {
@@ -88,12 +91,13 @@ export class Discord {
                 connection.subscribe(player)
 
                 const user = userRepository.get(member.id)
-                const speech = await this.textToSpeech.synthesizeSpeech(user === null ? VoiceType.Zahar : user.voiceType!, message.content)
+                console.log(`${member.user.username} chatted: ${message.cleanContent}`)
+                const speech = await this.ttsEngine.synthesizeSpeech(user === null 
+                    ? this.ttsEngine.getDefaultVoiceType() 
+                    : user.voiceType!, message.cleanContent)
                 const stream = Readable.from(speech);
 
-                await player.play(createAudioResource(stream, {
-                    inputType: StreamType.OggOpus,
-                }))
+                player.play(createAudioResource(stream, { inputType: StreamType.OggOpus }))
             } catch (err) {
                 console.error(err)
             }
@@ -119,4 +123,3 @@ export class Discord {
         }
     }
 }
-

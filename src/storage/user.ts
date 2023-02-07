@@ -1,4 +1,4 @@
-import { VoiceType } from '../TextToSpeech';
+import { VoiceType } from "../tts/tts";
 
 export class User {
 

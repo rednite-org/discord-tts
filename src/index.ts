@@ -1,11 +1,10 @@
-import fs, { copySync } from 'fs-extra'
+import fs from 'fs-extra'
 import jose from 'node-jose'
 import axios from 'axios'
-import { TextToSpeech, VoiceType } from './TextToSpeech'
 import config from './config'
-import { Discord } from './Discord'
-import { FileUserRepository, UserRepository } from './storage/repository'
-import { User } from './storage/user'
+import { Discord } from './discord'
+import { YandexTtsEngine } from './tts/yandex'
+import { TtsEngine } from './tts/tts'
 
 
 async function fetchJWT() {
@@ -50,15 +49,11 @@ async function loadToken(): Promise<{ iamToken: string, expiresAt: string }> {
     return token
 }
 
-
 async function main() {
     const token = await loadToken()
-    const textToSpeech = new TextToSpeech(config.folderId, token.iamToken)
-
-    const discord = new Discord(textToSpeech)
-
+    const ttsEngine: TtsEngine = new YandexTtsEngine(config.folderId, token.iamToken)
+    const discord = new Discord(ttsEngine)
     await discord.init(config.discordToken)
-
 }
 
 main().catch(console.error)
