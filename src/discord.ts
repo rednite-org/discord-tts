@@ -7,10 +7,11 @@ import { REST, Routes } from 'discord.js';
 import { CommandRepository } from "./command/command";
 import { VoiceCommand } from "./command/voice";
 import fs from 'fs-extra';
+import path from 'path'
 import { TtsEngine } from "./tts/tts";
 import { Mutex } from 'async-mutex';
 
-const userRepository: UserRepository = new FileUserRepository('users');
+const userRepository: UserRepository = new FileUserRepository('data/users');
 const commandRepository: CommandRepository = new CommandRepository();
 
 const player = createAudioPlayer({
@@ -21,15 +22,19 @@ const player = createAudioPlayer({
 })
 
 async function deployCommands(clientId: string, token: string) {
+    const cacheFile = 'data/commands.json'
+    
+    fs.mkdirpSync(path.dirname(cacheFile))
+
     const body = commandRepository.all().map(command => command.toJSON());
 
-    if (fs.existsSync('commands.json')) {
-        if (JSON.stringify(body) === JSON.stringify(fs.readJsonSync('commands.json'))) {
+    if (fs.existsSync(cacheFile)) {
+        if (JSON.stringify(body) === JSON.stringify(fs.readJsonSync(cacheFile))) {
             return;
         }
     }
 
-    fs.writeJsonSync('commands.json', body);
+    fs.writeJsonSync(cacheFile, body);
 
     console.log('Deploying new commands...')
 

@@ -15,10 +15,9 @@ export class FileUserRepository implements UserRepository {
     folderName: string;
 
     constructor(folderName: string) {
-        this.folderName = folderName;
-        if (!fs.existsSync(folderName)) {
-            fs.mkdirSync(folderName);
-        }
+        this.folderName = folderName
+
+        fs.mkdirpSync(folderName)
     }
 
     createOrUpdate(user: User): void {

@@ -7,7 +7,7 @@ import { YandexTtsEngine } from './tts/yandex'
 import { TtsEngine } from './tts/tts'
 
 async function fetchJWT() {
-    const authorizedKey = fs.readJsonSync('authorized_key.json')
+    const authorizedKey = fs.readJsonSync('keys/authorized_key.json')
 
     const now = Math.floor(new Date().getTime() / 1000);
 
@@ -29,7 +29,7 @@ async function fetchIAM(jwt: string) {
 }
 
 async function loadToken(): Promise<{ iamToken: string, expiresAt: string }> {
-    const filename = 'iam_token.json'
+    const filename = 'keys/iam_token.json'
 
     if ((await fs.exists(filename))) {
         const data = await fs.readJson(filename)
