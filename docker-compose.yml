@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  app:
+    build: .
+    volumes:
+      - ./keys:/app/keys
+      - ./data:/app/data
+    env_file:
+      - .env
