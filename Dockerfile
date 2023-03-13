@@ -22,6 +22,4 @@ RUN yarn install --prod
 
 COPY --from=builder /app/dist ./dist
 
-RUN sed '1361i\    this.configureNetworking();' -i node_modules/@discordjs/voice/dist/index.js
-
 CMD yarn docker
